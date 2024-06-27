@@ -19,7 +19,7 @@ function loadPuzzle() {
     }
 
     // Generate random values up to 30 cells
-    let a = 30;
+    let a = 45;
     while (a--) {
         let x = Math.floor(Math.random() * 9);
         let y = Math.floor(Math.random() * 9);
