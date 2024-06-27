@@ -18,7 +18,7 @@ function loadPuzzle() {
         }
     }
 
-    // Generate random values up to 30 cells
+    // Generate random values up to 40 cells
     let a = 40;
     while (a--) {
         let x = Math.floor(Math.random() * 9);
@@ -106,7 +106,7 @@ function solve2(arr) {
                             document.getElementById(cellId).style.backgroundColor = "green";
                             if (cellId === "a88") {
                                 gameWin.play();
-                                document.getElementById("msg").innerHTML = "Your puzzle is solved... (-_-)";
+                                document.getElementById("msg").innerHTML = "Your puzzle is solved...(-_-)";
                                 document.getElementById("msg").style.color = "rgb(0, 255, 38)";
                                 let op = `Solved in ${step} operations.`;
                                 document.getElementById("steps").innerHTML = op;
