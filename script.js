@@ -16,8 +16,8 @@ function loadPuzzle() {
         }
     }
 
-    let a = 45;
-    while (a>0) {
+    let a = 25;
+    while (a--) {
         let x = Math.floor(Math.random() * 9);
         let y = Math.floor(Math.random() * 9);
         let el = Math.floor(Math.random() * 9) + 1;
