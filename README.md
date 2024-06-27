@@ -5,8 +5,8 @@ This project is built with HTML, CSS, and JavaScript.
 
 ## Features
 
-- **Generate Puzzle:** Generates a new random Sudoku puzzle.
-- **Solve:** Solves the currently loaded Sudoku puzzle.
+- **Load Puzzle:** Generates a new random Sudoku puzzle.
+- **Solve Puzzle:** Solves the currently loaded Sudoku puzzle.
 - **Clear:** Clears the Sudoku board.
 
 ## Demo
