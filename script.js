@@ -18,8 +18,8 @@ function loadPuzzle() {
         }
     }
 
-    // Generate random values up to 20 cells
-    let a = 20;
+    // Generate random values up to 30 cells
+    let a = 40;
     while (a--) {
         let x = Math.floor(Math.random() * 9);
         let y = Math.floor(Math.random() * 9);
@@ -101,7 +101,7 @@ function solve2(arr) {
                         step++;
                         let cellId = `a${i}${j}`;
                         let strb = b.toString();
-                        requestAnimationFrame(() => {
+                        setTimeout(() => {
                             document.getElementById(cellId).innerHTML = strb;
                             document.getElementById(cellId).style.backgroundColor = "green";
                             if (cellId === "a88") {
@@ -112,15 +112,15 @@ function solve2(arr) {
                                 document.getElementById("steps").innerHTML = op;
                                 document.getElementById("steps").style.color = "orange";
                             }
-                        });
+                        }, 0);
                         arr[i][j] = b;
                         if (solve2(arr)) {
                             return true;
                         } else {
-                            requestAnimationFrame(() => {
+                            setTimeout(() => {
                                 document.getElementById(cellId).innerHTML = "";
                                 document.getElementById(cellId).style.backgroundColor = "rgb(94, 96, 109)";
-                            });
+                            }, 0);
                             arr[i][j] = 0;
                         }
                     }
