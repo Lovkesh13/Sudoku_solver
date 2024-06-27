@@ -1,156 +1,164 @@
-// Function to create the Sudoku board
-function createBoard() {
-    const board = document.getElementById('sudoku-board');
+let gameOver = new Audio("game-over.mp3");
+let gameWin = new Audio("win.mp3");
+let load_first = new Audio("load_first.mp3");
+
+// Main function starting
+let arr = Array.from({ length: 9 }, () => Array(9).fill(0));
+let puzzleLoaded = false;
+
+function loadPuzzle() {
+    // Reset the board
     for (let i = 0; i < 9; i++) {
-        const row = document.createElement('tr');
         for (let j = 0; j < 9; j++) {
-            const cell = document.createElement('td');
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.maxLength = 1;
-            cell.appendChild(input);
-            row.appendChild(cell);
+            arr[i][j] = 0;
+            let cellId = `a${i}${j}`;
+            document.getElementById(cellId).innerHTML = "";
+            document.getElementById(cellId).style.backgroundColor = "rgb(94, 96, 109)";
         }
-        board.appendChild(row);
+    }
+
+    // Generate random values up to 30 cells
+    let a = 30;
+    while (a--) {
+        let x = Math.floor(Math.random() * 9);
+        let y = Math.floor(Math.random() * 9);
+        let el = Math.floor(Math.random() * 9) + 1;
+
+        if (canBeInserted2(x, y, el, arr)) {
+            let cellId = `a${x}${y}`;
+            document.getElementById(cellId).innerHTML = el.toString();
+            arr[x][y] = el;
+            document.getElementById(cellId).style.backgroundColor = "rgb(5, 5, 5)";
+        }
+    }
+
+    document.getElementById("msg").innerHTML = "Puzzle Loaded. Ready to Solve!";
+    document.getElementById("msg").style.color = "yellow";
+    puzzleLoaded = true;
+}
+
+function solvePuzzle() {
+    if (!puzzleLoaded) {
+        load_first.play();
+        document.getElementById("msg").innerHTML = "Please load the puzzle before trying to solve!";
+        document.getElementById("msg").style.color = "red";
+        return;
+    }
+
+    let copy = arr.map((row) => row.slice());
+
+    if (solve1(copy)) {
+        document.getElementById("msg").innerHTML = "Your puzzle is solving...";
+        document.getElementById("msg").style.color = "orange";
+        console.log("Your puzzle is solving...");
+        solve2(arr);
+    } else {
+        for (let i = 0; i < 9; i++) {
+            for (let j = 0; j < 9; j++) {
+                if (copy[i][j] == 0) {
+                    let cellId = `a${i}${j}`;
+                    document.getElementById(cellId).style.backgroundColor = "red";
+                }
+            }
+        }
+        gameOver.play();
+        document.getElementById("msg").innerHTML = "This puzzle can't be solved. Please clear...";
+        document.getElementById("msg").style.color = "red";
+        console.log("This puzzle can't be solved...");
     }
 }
 
-// Functions for Sudoku solving
-function isSafe(board, row, col, num) {
-    for (let x = 0; x < 9; x++) {
-        if (board[row][x] == num || board[x][col] == num || board[3 * Math.floor(row / 3) + Math.floor(x / 3)][3 * Math.floor(col / 3) + x % 3] == num) {
+function solve1(copy) {
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+            if (copy[i][j] == 0) {
+                for (let b = 1; b < 10; b++) {
+                    if (canBeInserted1(i, j, b, copy)) {
+                        copy[i][j] = b;
+                        if (solve1(copy)) {
+                            return true;
+                        } else {
+                            copy[i][j] = 0;
+                        }
+                    }
+                }
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+let time = 0;
+let step = 0;
+
+function solve2(arr) {
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+            if (arr[i][j] == 0) {
+                for (let b = 1; b < 10; b++) {
+                    if (canBeInserted2(i, j, b, arr)) {
+                        step++;
+                        let cellId = `a${i}${j}`;
+                        let strb = b.toString();
+                        setTimeout(() => {
+                            document.getElementById(cellId).innerHTML = strb;
+                            document.getElementById(cellId).style.backgroundColor = "green";
+                            if (cellId === "a88") {
+                                gameWin.play();
+                                document.getElementById("msg").innerHTML = "Your puzzle is solved...(-_-)";
+                                document.getElementById("msg").style.color = "rgb(0, 255, 38)";
+                                console.log("Your puzzle is solved... (-_-)");
+                                let op = `Solved in ${step} operations.`;
+                                document.getElementById("steps").innerHTML = op;
+                                document.getElementById("steps").style.color = "orange";
+                            }
+                        }, time);
+                        time += 2;
+                        arr[i][j] = b;
+                        if (solve2(arr)) {
+                            return true;
+                        } else {
+                            setTimeout(() => {
+                                document.getElementById(cellId).innerHTML = "";
+                                document.getElementById(cellId).style.backgroundColor = "rgb(94, 96, 109)";
+                            }, time);
+                            time += 1;
+                            arr[i][j] = 0;
+                        }
+                    }
+                }
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function canBeInserted1(row, col, item, copy) {
+    for (let k = 0; k < 9; k++) {
+        if (copy[row][k] == item || copy[k][col] == item) {
+            return false;
+        }
+        let cubeCheckX = Math.floor(3 * Math.floor(row / 3) + Math.floor(k / 3));
+        let cubeCheckY = Math.floor(3 * Math.floor(col / 3) + Math.floor(k % 3));
+        if (copy[cubeCheckX][cubeCheckY] == item) {
             return false;
         }
     }
     return true;
 }
 
-function solveSudokuUtil(board) {
-    let l = [0, 0];
-    if (!findUnassignedLocation(board, l)) {
-        return true;
-    }
-    let row = l[0];
-    let col = l[1];
-    for (let num = 1; num <= 9; num++) {
-        if (isSafe(board, row, col, num)) {
-            board[row][col] = num;
-            if (solveSudokuUtil(board)) {
-                return true;
-            }
-            board[row][col] = 0;
+function canBeInserted2(row, col, item, arr) {
+    for (let k = 0; k < 9; k++) {
+        if (arr[row][k] == item || arr[k][col] == item) {
+            return false;
+        }
+        let cubeCheckX = Math.floor(3 * Math.floor(row / 3) + Math.floor(k / 3));
+        let cubeCheckY = Math.floor(3 * Math.floor(col / 3) + Math.floor(k % 3));
+        if (arr[cubeCheckX][cubeCheckY] == item) {
+            return false;
         }
     }
-    return false;
+    return true;
 }
-
-function findUnassignedLocation(board, l) {
-    for (let row = 0; row < 9; row++) {
-        for (let col = 0; col < 9; col++) {
-            if (board[row][col] == 0) {
-                l[0] = row;
-                l[1] = col;
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-// Function to solve the Sudoku puzzle
-function solveSudoku() {
-    const board = [];
-    const inputs = document.querySelectorAll('input');
-    for (let i = 0; i < 9; i++) {
-        board[i] = [];
-        for (let j = 0; j < 9; j++) {
-            const value = inputs[i * 9 + j].value;
-            board[i][j] = value ? parseInt(value) : 0;
-        }
-    }
-
-    if (solveSudokuUtil(board)) {
-        for (let i = 0; i < 9; i++) {
-            for (let j = 0; j < 9; j++) {
-                const input = inputs[i * 9 + j];
-                if (input.value === '') {
-                    input.value = board[i][j];
-                    input.parentElement.classList.add('solved-cell');
-                }
-            }
-        }
-    } else {
-        alert('No solution exists');
-    }
-}
-
-// Function to clear the Sudoku board
-function clearBoard() {
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
-        input.value = '';
-        input.parentElement.classList.remove('generated-cell', 'solved-cell');
-    });
-}
-
-// Function to generate a random Sudoku puzzle
-function generatePuzzle() {
-    clearBoard();
-    const puzzle = generateSudoku();
-    const inputs = document.querySelectorAll('input');
-    for (let i = 0; i < 9; i++) {
-        for (let j = 0; j < 9; j++) {
-            if (puzzle[i][j] !== 0) {
-                const input = inputs[i * 9 + j];
-                input.value = puzzle[i][j];
-                input.parentElement.classList.add('generated-cell');
-            }
-        }
-    }
-}
-
-// Sudoku puzzle generator using a simple backtracking algorithm
-function generateSudoku() {
-    const board = Array.from({ length: 9 }, () => Array(9).fill(0));
-    fillDiagonalBoxes(board);
-    solveSudokuUtil(board);
-    removeRandomDigits(board);
-    return board;
-}
-
-function fillDiagonalBoxes(board) {
-    for (let i = 0; i < 9; i += 3) {
-        fillBox(board, i, i);
-    }
-}
-
-function fillBox(board, row, col) {
-    const numSet = new Set();
-    while (numSet.size < 9) {
-        const num = Math.floor(Math.random() * 9) + 1;
-        numSet.add(num);
-    }
-    const numArray = Array.from(numSet);
-    let k = 0;
-    for (let i = 0; i < 3; i++) {
-        for (let j = 0; j < 3; j++) {
-            board[row + i][col + j] = numArray[k++];
-        }
-    }
-}
-
-function removeRandomDigits(board) {
-    let count = 40; // Number of cells to remove
-    while (count !== 0) {
-        const cellId = Math.floor(Math.random() * 81);
-        const i = Math.floor(cellId / 9);
-        const j = cellId % 9;
-        if (board[i][j] !== 0) {
-            board[i][j] = 0;
-            count--;
-        }
-    }
-}
-
-// Initialize the board on page load
-window.onload = createBoard;
