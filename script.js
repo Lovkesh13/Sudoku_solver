@@ -18,8 +18,8 @@ function loadPuzzle() {
         }
     }
 
-    // Generate random values for up to 20 cells to make it simpler
-    let a = 20;
+    // Generate random values up to 30 cells
+    let a = 15;
     while (a--) {
         let x = Math.floor(Math.random() * 9);
         let y = Math.floor(Math.random() * 9);
@@ -89,47 +89,47 @@ function solve1(copy) {
     return true;
 }
 
+let time = 0;
 let step = 0;
 
 function solve2(arr) {
-    let solveHelper = (i, j) => {
-        if (i === 9) {
-            gameWin.play();
-            document.getElementById("msg").innerHTML = "Your puzzle is solved... (-_-)";
-            document.getElementById("msg").style.color = "rgb(0, 255, 38)";
-            let op = `Solved in ${step} operations.`;
-            document.getElementById("steps").innerHTML = op;
-            document.getElementById("steps").style.color = "orange";
-            return;
-        }
-
-        if (arr[i][j] !== 0) {
-            solveHelper(i + (j + 1) / 9, (j + 1) % 9);
-            return;
-        }
-
-        for (let b = 1; b < 10; b++) {
-            if (canBeInserted2(i, j, b, arr)) {
-                step++;
-                let cellId = `a${i}${j}`;
-                let strb = b.toString();
-                setTimeout(() => {
-                    document.getElementById(cellId).innerHTML = strb;
-                    document.getElementById(cellId).style.backgroundColor = "green";
-                }, 0);
-                arr[i][j] = b;
-                solveHelper(i + (j + 1) / 9, (j + 1) % 9);
-                setTimeout(() => {
-                    document.getElementById(cellId).innerHTML = "";
-                    document.getElementById(cellId).style.backgroundColor = "rgb(94, 96, 109)";
-                }, 0);
-                arr[i][j] = 0;
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+            if (arr[i][j] == 0) {
+                for (let b = 1; b < 10; b++) {
+                    if (canBeInserted2(i, j, b, arr)) {
+                        step++;
+                        let cellId = `a${i}${j}`;
+                        let strb = b.toString();
+                        requestAnimationFrame(() => {
+                            document.getElementById(cellId).innerHTML = strb;
+                            document.getElementById(cellId).style.backgroundColor = "green";
+                        });
+                        arr[i][j] = b;
+                        if (solve2(arr)) {
+                            return true;
+                        } else {
+                            requestAnimationFrame(() => {
+                                document.getElementById(cellId).innerHTML = "";
+                                document.getElementById(cellId).style.backgroundColor = "rgb(94, 96, 109)";
+                            });
+                            arr[i][j] = 0;
+                        }
+                    }
+                }
+                return false;
             }
         }
-    };
-
-    solveHelper(0, 0);
+    }
+    gameWin.play();
+    document.getElementById("msg").innerHTML = "Your puzzle is solved... (-_-)";
+    document.getElementById("msg").style.color = "rgb(0, 255, 38)";
+    let op = `Solved in ${step} operations.`;
+    document.getElementById("steps").innerHTML = op;
+    document.getElementById("steps").style.color = "orange";
+    return true;
 }
+
 
 function canBeInserted1(row, col, item, copy) {
     for (let k = 0; k < 9; k++) {
