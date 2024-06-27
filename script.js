@@ -19,7 +19,7 @@ function loadPuzzle() {
     }
 
     // Generate random values up to 30 cells
-    let a = 15;
+    let a = 20;
     while (a--) {
         let x = Math.floor(Math.random() * 9);
         let y = Math.floor(Math.random() * 9);
@@ -104,6 +104,14 @@ function solve2(arr) {
                         requestAnimationFrame(() => {
                             document.getElementById(cellId).innerHTML = strb;
                             document.getElementById(cellId).style.backgroundColor = "green";
+                            if (cellId === "a88") {
+                                gameWin.play();
+                                document.getElementById("msg").innerHTML = "Your puzzle is solved... (-_-)";
+                                document.getElementById("msg").style.color = "rgb(0, 255, 38)";
+                                let op = `Solved in ${step} operations.`;
+                                document.getElementById("steps").innerHTML = op;
+                                document.getElementById("steps").style.color = "orange";
+                            }
                         });
                         arr[i][j] = b;
                         if (solve2(arr)) {
@@ -121,15 +129,8 @@ function solve2(arr) {
             }
         }
     }
-    gameWin.play();
-    document.getElementById("msg").innerHTML = "Your puzzle is solved... (-_-)";
-    document.getElementById("msg").style.color = "rgb(0, 255, 38)";
-    let op = `Solved in ${step} operations.`;
-    document.getElementById("steps").innerHTML = op;
-    document.getElementById("steps").style.color = "orange";
     return true;
 }
-
 
 function canBeInserted1(row, col, item, copy) {
     for (let k = 0; k < 9; k++) {
