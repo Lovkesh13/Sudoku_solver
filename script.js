@@ -16,8 +16,8 @@ function loadPuzzle() {
         }
     }
 
-    let a = 20;
-    while (a--) {
+    let a = 45;
+    while (a>0) {
         let x = Math.floor(Math.random() * 9);
         let y = Math.floor(Math.random() * 9);
         let el = Math.floor(Math.random() * 9) + 1;
@@ -60,7 +60,7 @@ function solvePuzzle() {
             }
         }
         gameOver.play();
-        document.getElementById("msg").innerHTML = "This puzzle can't be solved. Please refresh the board...";
+        document.getElementById("msg").innerHTML = "This puzzle can't be solved. Please clear...";
         document.getElementById("msg").style.color = "red";
     }
 }
@@ -92,7 +92,7 @@ function solve2(arr) {
     function stepSolve2(i, j) {
         if (i == 9) {
             gameWin.play();
-            document.getElementById("msg").innerHTML = "Your puzzle is solved... (-_-)";
+            document.getElementById("msg").innerHTML = "Your puzzle is solved...(-_-)";
             document.getElementById("msg").style.color = "rgb(0, 255, 38)";
             let op = `Solved in ${step} operations.`;
             document.getElementById("steps").innerHTML = op;
