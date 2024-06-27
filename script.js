@@ -12,8 +12,9 @@ function loadPuzzle() {
         for (let j = 0; j < 9; j++) {
             arr[i][j] = 0;
             let cellId = `a${i}${j}`;
-            document.getElementById(cellId).innerHTML = "";
-            document.getElementById(cellId).style.backgroundColor = "rgb(94, 96, 109)";
+            let cell = document.getElementById(cellId);
+            cell.innerHTML = "";
+            cell.style.backgroundColor = "rgb(94, 96, 109)";
         }
     }
 
@@ -26,9 +27,10 @@ function loadPuzzle() {
 
         if (canBeInserted2(x, y, el, arr)) {
             let cellId = `a${x}${y}`;
-            document.getElementById(cellId).innerHTML = el.toString();
+            let cell = document.getElementById(cellId);
+            cell.innerHTML = el.toString();
             arr[x][y] = el;
-            document.getElementById(cellId).style.backgroundColor = "rgb(5, 5, 5)";
+            cell.style.backgroundColor = "rgb(5, 5, 5)";
         }
     }
 
@@ -50,7 +52,6 @@ function solvePuzzle() {
     if (solve1(copy)) {
         document.getElementById("msg").innerHTML = "Your puzzle is solving...";
         document.getElementById("msg").style.color = "orange";
-        console.log("Your puzzle is solving...");
         solve2(arr);
     } else {
         for (let i = 0; i < 9; i++) {
@@ -62,9 +63,8 @@ function solvePuzzle() {
             }
         }
         gameOver.play();
-        document.getElementById("msg").innerHTML = "This puzzle can't be solved. Please clear...";
+        document.getElementById("msg").innerHTML = "This puzzle can't be solved. Please refresh the board...";
         document.getElementById("msg").style.color = "red";
-        console.log("This puzzle can't be solved...");
     }
 }
 
@@ -101,29 +101,18 @@ function solve2(arr) {
                         step++;
                         let cellId = `a${i}${j}`;
                         let strb = b.toString();
-                        setTimeout(() => {
+                        requestAnimationFrame(() => {
                             document.getElementById(cellId).innerHTML = strb;
                             document.getElementById(cellId).style.backgroundColor = "green";
-                            if (cellId === "a88") {
-                                gameWin.play();
-                                document.getElementById("msg").innerHTML = "Your puzzle is solved...(-_-)";
-                                document.getElementById("msg").style.color = "rgb(0, 255, 38)";
-                                console.log("Your puzzle is solved... (-_-)");
-                                let op = `Solved in ${step} operations.`;
-                                document.getElementById("steps").innerHTML = op;
-                                document.getElementById("steps").style.color = "orange";
-                            }
-                        }, time);
-                        time += 2;
+                        });
                         arr[i][j] = b;
                         if (solve2(arr)) {
                             return true;
                         } else {
-                            setTimeout(() => {
+                            requestAnimationFrame(() => {
                                 document.getElementById(cellId).innerHTML = "";
                                 document.getElementById(cellId).style.backgroundColor = "rgb(94, 96, 109)";
-                            }, time);
-                            time += 1;
+                            });
                             arr[i][j] = 0;
                         }
                     }
@@ -132,8 +121,15 @@ function solve2(arr) {
             }
         }
     }
+    gameWin.play();
+    document.getElementById("msg").innerHTML = "Your puzzle is solved... (-_-)";
+    document.getElementById("msg").style.color = "rgb(0, 255, 38)";
+    let op = `Solved in ${step} operations.`;
+    document.getElementById("steps").innerHTML = op;
+    document.getElementById("steps").style.color = "orange";
     return true;
 }
+
 
 function canBeInserted1(row, col, item, copy) {
     for (let k = 0; k < 9; k++) {
