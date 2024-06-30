@@ -18,11 +18,12 @@ function loadPuzzle() {
         }
     }
 
-    // Generate random values up to 40 cells
+    // Generate random values up to 40 cells, excluding the last cell
     let a = 40;
     while (a--) {
         let x = Math.floor(Math.random() * 9);
         let y = Math.floor(Math.random() * 9);
+        if (x === 8 && y === 8) continue; 
         let el = Math.floor(Math.random() * 9) + 1;
 
         if (canBeInserted2(x, y, el, arr)) {
