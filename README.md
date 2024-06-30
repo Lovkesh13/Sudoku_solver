@@ -9,7 +9,7 @@ This project is built with HTML, CSS, and JavaScript.
 - **Solve Puzzle:** Solves the currently loaded Sudoku puzzle.
 - **Clear:** Clears the Sudoku board.
 
-## Demo
+## Screenshots
 
 ![Sudoku Solver Screenshot](Screenshot1.png)
 
