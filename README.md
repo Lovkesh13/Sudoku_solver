@@ -12,8 +12,8 @@ This project is built with HTML, CSS, and JavaScript.
 ## Screenshots
 
 <div style="display: flex; gap: 10px;">
-  <img src="img1.png" alt="Sudoku Solver Screenshot 1" width="300">
-  <img src="img2.png" alt="Sudoku Solver Screenshot 2" width="300">
-  <img src="img3.png" alt="Sudoku Solver Screenshot 3" width="300">
+  <img src="img1.png" alt="Sudoku Solver Screenshot 1" width="500" height="400">
+  <img src="img2.png" alt="Sudoku Solver Screenshot 2" width="500" height="400">
+  <img src="img3.png" alt="Sudoku Solver Screenshot 3" width="500" height="400">
 </div>
 
