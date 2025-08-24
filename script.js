@@ -21,12 +21,11 @@ function createGrid() {
 }
 
 function selectCell(row, col) {
-    if (originalBoard[row][col] !== 0) return;
-    
+    // allow selection of any cell (even givens), but restrict editing later
     if (selectedCell) {
-        document.getElementById(`cell-${selectedCell.row}-${selectedCell.col}`).classList.remove('selected');
+        document.getElementById(`cell-${selectedCell.row}-${selectedCell.col}`)
+            .classList.remove('selected');
     }
-    
     selectedCell = { row, col };
     document.getElementById(`cell-${row}-${col}`).classList.add('selected');
 }
@@ -34,7 +33,10 @@ function selectCell(row, col) {
 function setNumber(num) {
     if (!selectedCell) return;
     const { row, col } = selectedCell;
-    
+
+    // don't allow editing given cells
+    if (originalBoard[row][col] !== 0) return;
+
     if (isValid(row, col, num)) {
         board[row][col] = num;
         updateCell(row, col);
@@ -51,30 +53,32 @@ function setNumber(num) {
 }
 
 function isValid(row, col, num) {
+    // check row
     for (let i = 0; i < 9; i++) {
         if (i !== col && board[row][i] === num) return false;
     }
-    
+    // check col
     for (let i = 0; i < 9; i++) {
         if (i !== row && board[i][col] === num) return false;
     }
-    
+    // check 3x3 box
     let boxRow = Math.floor(row / 3) * 3;
     let boxCol = Math.floor(col / 3) * 3;
     for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
-            if (boxRow + i !== row && boxCol + j !== col && 
-                board[boxRow + i][boxCol + j] === num) return false;
+            if ((boxRow + i !== row || boxCol + j !== col) &&
+                board[boxRow + i][boxCol + j] === num) {
+                return false;
+            }
         }
     }
-    
     return true;
 }
 
 function generatePuzzle() {
     generateSolution(0, 0);
     solution = board.map(row => [...row]);
-    
+
     let cellsToRemove = 40;
     while (cellsToRemove > 0) {
         let row = Math.floor(Math.random() * 9);
@@ -84,7 +88,7 @@ function generatePuzzle() {
             cellsToRemove--;
         }
     }
-    
+
     originalBoard = board.map(row => [...row]);
 }
 
@@ -94,12 +98,12 @@ function generateSolution(row, col) {
         col = 0;
     }
     if (row === 9) return true;
-    
+
     if (board[row][col] !== 0) return generateSolution(row, col + 1);
-    
+
     let nums = [1,2,3,4,5,6,7,8,9];
     nums.sort(() => Math.random() - 0.5);
-    
+
     for (let num of nums) {
         if (isValid(row, col, num)) {
             board[row][col] = num;
@@ -107,7 +111,7 @@ function generateSolution(row, col) {
             board[row][col] = 0;
         }
     }
-    
+
     return false;
 }
 
@@ -122,7 +126,9 @@ function updateBoard() {
 function updateCell(row, col) {
     const cell = document.getElementById(`cell-${row}-${col}`);
     cell.textContent = board[row][col] || '';
-    cell.className = 'grid-item';
+
+    // reset only the "original" class, keep selection/highlight
+    cell.classList.remove('original');
     if (originalBoard[row][col] !== 0) {
         cell.classList.add('original');
     }
@@ -135,7 +141,7 @@ function startTimer() {
         timer++;
         const minutes = Math.floor(timer / 60);
         const seconds = timer % 60;
-        document.getElementById('timer').textContent = 
+        document.getElementById('timer').textContent =
             `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }, 1000);
 }
@@ -159,11 +165,13 @@ function showSolution() {
 }
 
 function clearBoard() {
-    if (selectedCell) {
-        const { row, col } = selectedCell;
-        if (originalBoard[row][col] === 0) {
-            board[row][col] = 0;
-            updateCell(row, col);
+    // clear all editable cells (not just one)
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+            if (originalBoard[i][j] === 0) {
+                board[i][j] = 0;
+                updateCell(i, j);
+            }
         }
     }
 }
@@ -189,6 +197,15 @@ document.addEventListener('keydown', (e) => {
     if (e.key >= '1' && e.key <= '9') {
         setNumber(parseInt(e.key));
     } else if (e.key === 'Backspace' || e.key === 'Delete') {
-        clearBoard();
+        if (selectedCell && originalBoard[selectedCell.row][selectedCell.col] === 0) {
+            board[selectedCell.row][selectedCell.col] = 0;
+            updateCell(selectedCell.row, selectedCell.col);
+        }
     }
 });
+
+// Expose functions for inline HTML buttons
+window.setNumber = setNumber;
+window.newGame = newGame;
+window.showSolution = showSolution;
+window.clearBoard = clearBoard;
